@@ -107,7 +107,9 @@ class Trainer:
                     self.save_model()
 
 
-    def sample(self, n_steps=None):
+    def sample(self, n_steps=None, set_seed=False):
+        if set_seed:
+            torch.manual_seed(42)
         if n_steps is None:
             n_steps == self.args.n_steps
             
@@ -166,7 +168,7 @@ class Trainer:
         plt.close(fig)
         
         
-    def generate_intermediate_samples(self, model, n_samples=4, img_size=32, steps_to_show=[0,999], n_steps=None):
+    def generate_intermediate_samples(self, model, n_samples=4, img_size=32, steps_to_show=[0,999], n_steps=None, set_seed=False):
         """
         Generate multiple images and return intermediate steps of the diffusion process
         Args:
@@ -178,7 +180,8 @@ class Trainer:
             List of tensors representing the images at different steps
         """
         
-        torch.manual_seed(42)
+        if set_seed:
+            torch.manual_seed(42)
         
         if n_steps is None:
             n_steps = args.n_steps

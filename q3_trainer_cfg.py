@@ -117,7 +117,9 @@ class Trainer:
                 if (current_epoch + 1) % self.args.save_every_n_epochs == 0:
                     self.save_model()
     
-    def sample(self, labels=None, cfg_scale=3., n_steps=None):
+    def sample(self, labels=None, cfg_scale=3., n_steps=None, set_seed=False):
+        if set_seed:
+            torch.manual_seed(42)
         if n_steps is None:
             n_steps = self.args.n_steps
             

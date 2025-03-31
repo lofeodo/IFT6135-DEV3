@@ -13,7 +13,6 @@ import os
 
 from cfg_utils.args import * 
 
-torch.manual_seed(42)
 
 class CFGDiffusion():
     def __init__(self, eps_model: nn.Module, n_steps: int, device: torch.device):
@@ -84,16 +83,20 @@ class CFGDiffusion():
 
         return var
     
-    def p_sample(self, z_lambda_t: torch.Tensor, lambda_t : torch.Tensor, lambda_t_prim: torch.Tensor,  x_t: torch.Tensor):
+    def p_sample(self, z_lambda_t: torch.Tensor, lambda_t : torch.Tensor, lambda_t_prim: torch.Tensor,  x_t: torch.Tensor, set_seed=False):
         # TODO: Write a function that sample z_{lambda_t_prim} from p_theta(•|z_lambda_t) according to (4) 
         # Note that x_t correspond to x_theta(z_lambda_t)
+        if set_seed:
+            torch.manual_seed(42)
         raise NotImplementedError
 
     
         return sample 
 
     ### LOSS
-    def loss(self, x0: torch.Tensor, labels: torch.Tensor, noise: Optional[torch.Tensor] = None):
+    def loss(self, x0: torch.Tensor, labels: torch.Tensor, noise: Optional[torch.Tensor] = None, set_seed=False):
+        if set_seed:
+            torch.manual_seed(42)
         batch_size = x0.shape[0]
         dim = list(range(1, x0.ndim))
         t = torch.randint(

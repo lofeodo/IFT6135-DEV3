@@ -42,14 +42,18 @@ class DenoiseDiffusion():
         return mu_theta, var
 
     # TODO: sample x_{t-1} from p_theta(•|x_t) according to (3)
-    def p_sample(self, xt: torch.Tensor, t: torch.Tensor):
+    def p_sample(self, xt: torch.Tensor, t: torch.Tensor, set_seed=False):
+        if set_seed:
+            torch.manual_seed(42)
         raise NotImplementedError
 
         return sample
 
     ### LOSS
     # TODO: compute loss according to (4)
-    def loss(self, x0: torch.Tensor, noise: Optional[torch.Tensor] = None):
+    def loss(self, x0: torch.Tensor, noise: Optional[torch.Tensor] = None, set_seed=False):
+        if set_seed:
+            torch.manual_seed(42)
         batch_size = x0.shape[0]
         dim = list(range(1, x0.ndim))
         t = torch.randint(
