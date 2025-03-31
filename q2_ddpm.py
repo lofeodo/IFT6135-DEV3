@@ -2,7 +2,6 @@ import torch
 from torch import nn 
 from typing import Optional, Tuple
 
-torch.manual_seed(42)
 
 class DenoiseDiffusion():
     def __init__(self, eps_model: nn.Module, n_steps: int, device: torch.device):
