@@ -111,7 +111,7 @@ class Trainer:
         if set_seed:
             torch.manual_seed(42)
         if n_steps is None:
-            n_steps == self.args.n_steps
+            n_steps = self.args.n_steps
             
         with torch.no_grad():
             # $x_T \sim p(x_T) = \mathcal{N}(x_T; \mathbf{0}, \mathbf{I})$
