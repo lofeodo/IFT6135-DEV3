@@ -137,7 +137,6 @@ class CFGDiffusion():
 
     ### LOSS
     def loss(self, x0: torch.Tensor, labels: torch.Tensor, noise: Optional[torch.Tensor] = None, set_seed=False):
-        print("I'm in loss")
         if set_seed:
             torch.manual_seed(42)
         batch_size = x0.shape[0]
