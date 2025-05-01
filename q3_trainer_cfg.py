@@ -1,4 +1,3 @@
-
 import torch
 import torch.utils.data
 import torchvision
@@ -149,14 +148,32 @@ class Trainer:
                 t = n_steps - t_ - 1
                 t = torch.full((self.args.n_samples,), t, device=z_t.device, dtype=torch.long)
                 
-                #TODO: Get lambda and lambda prim based on t 
-                raise NotImplementedError
+                # Get lambda and lambda_prim for current and next step
+                lambda_t = self.diffusion.get_lambda(t)
+                lambda_t_prim = self.diffusion.get_lambda(t - 1)
                 
-                #TODO: Add linear interpolation between unconditional and conditional preidiction according to 3 in Algo. 2 using cfg_scale
-                raise NotImplementedError
-                    
-                #TODO: Get x_t then sample z_t from the reverse process according to 4. and 5. in Algo 2.
-                raise NotImplementedError
+                # Get unconditional prediction by passing None as labels
+                eps_uncond = self.eps_model(z_t, None)
+                
+                # Get conditional prediction
+                eps_cond = self.eps_model(z_t, labels)
+                
+                # Combine predictions using CFG (Eq. 3 in paper)
+                # eps_pred = eps_uncond + cfg_scale * (eps_cond - eps_uncond)
+                eps_pred = (1 + cfg_scale) * eps_cond - cfg_scale * eps_uncond
+                
+                # Get x_t from predicted noise
+                alpha_t = self.diffusion.alpha_lambda(lambda_t)
+                sigma_t = self.diffusion.sigma_lambda(lambda_t)
+                x_t = (z_t - sigma_t * eps_pred) / alpha_t
+                
+                # Sample z_{t-1} from reverse process
+                z_t = self.diffusion.p_sample(
+                    z_lambda_t=z_t,
+                    lambda_t=lambda_t,
+                    lambda_t_prim=lambda_t_prim,
+                    x_t=x_t
+                )
 
                 if self.args.nb_save is not None and t_ in saving_steps:
                     print(f"Showing/saving samples from epoch {self.current_epoch} with labels: {labels.tolist()}")
