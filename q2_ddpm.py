@@ -57,7 +57,6 @@ class DenoiseDiffusion():
         return sample
 
     ### LOSS
-    # TODO: compute loss according to (4)
     def loss(self, x0: torch.Tensor, noise: Optional[torch.Tensor] = None, set_seed=False):
         if set_seed:
             torch.manual_seed(42)
@@ -74,10 +73,7 @@ class DenoiseDiffusion():
         x_t = torch.sqrt(alpha_bar_t) * x0 + torch.sqrt(1 - alpha_bar_t) * noise
         
         predicted_noise = self.eps_model(x_t, t)
-        
-        loss = (noise - predicted_noise).pow(2)
-        loss = loss.view(batch_size, -1).mean(dim=1)
 
-        print(loss)
+        loss = (noise - predicted_noise).pow(2).sum(dim=dim).mean()
         
         return loss
