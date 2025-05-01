@@ -128,9 +128,9 @@ class Trainer:
                 saving_steps = [self.args["n_steps"] - 1]
             # Remove noise for $T$ steps
             for t_ in tqdm(range(n_steps)):
-                
-                # TODO: Sample x_t 
-                raise NotImplementedError
+                t = n_steps - t_ - 1
+                t = torch.full((self.args.n_samples,), t, device=x.device, dtype=torch.long)
+                x = self.diffusion.p_sample(x, t)
             
                 if self.args.nb_save is not None and t_ in saving_steps:
                     print(f"Showing/saving samples from epoch {self.current_epoch}")
@@ -193,10 +193,11 @@ class Trainer:
         images.append(x.detach().cpu().numpy())  # Initial noise
 
         for step in tqdm(range(1, n_steps+1, 1)):
-            # TODO: Generate intermediate steps
-            # Hint: if GPU crashes, it might be because you accumulate unused gradient ... don't forget to remove gradient
-            raise NotImplementedError
-        
+            t = n_steps - step
+            t = torch.full((n_samples,), t, device=x.device, dtype=torch.long)
+            x = self.diffusion.p_sample(x, t, set_seed=set_seed)
+            x = x.detach()  # Remove gradient to prevent memory issues
+            
             # Store intermediate result if it's a step we want to display
             if step in steps_to_show:
                 images.append(x.detach().cpu().numpy())
