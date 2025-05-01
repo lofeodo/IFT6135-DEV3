@@ -7,6 +7,7 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 from q1_vae import *
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
@@ -111,9 +112,47 @@ def train(epoch):
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
+    return train_loss / len(train_loader.dataset)
+
+def test():
+    model.eval()  # Set the model to evaluation mode
+    test_loss = 0
+    with torch.no_grad():  # Disable gradient computation for evaluation
+        for data, _ in test_loader:
+            data = data.to(device)
+            recon_batch, mu, logvar = model(data)
+            test_loss += loss_function(recon_batch, data, mu, logvar).item()
+    
+    test_loss /= len(test_loader.dataset)
+    print('====> Test set loss: {:.4f}'.format(test_loss))
+    return test_loss
 
 if __name__ == "__main__":
+    # Lists to store losses for plotting
+    train_losses = []
+    val_losses = []
+    
     for epoch in range(1, args.epochs + 1):
-        train(epoch)
-
+        train_loss = train(epoch)
+        val_loss = test()
+        
+        # Store losses for plotting
+        train_losses.append(train_loss)
+        val_losses.append(val_loss)
+    
+    # Save the model
     torch.save(model, 'model.pt')
+    
+    # Print final validation loss
+    print('Final validation loss: {:.4f}'.format(val_losses[-1]))
+
+    # Plot training and validation losses
+    plt.figure(figsize=(10, 5))
+    plt.plot(train_losses, label='Training Loss')
+    plt.plot(val_losses, label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Losses')
+    plt.legend()
+    plt.savefig('loss_plot.png')
+    plt.close()
