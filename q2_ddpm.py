@@ -43,13 +43,14 @@ class DenoiseDiffusion():
         eps_theta = self.eps_model(xt, t)
         eps_coef = beta_t / torch.sqrt(1 - alpha_bar_t)
         mu_theta = (1 / torch.sqrt(alpha_t)) * (xt - eps_coef * eps_theta)
-        var = beta_t  # sigma_t^2 = beta_t
+        var = beta_t
         
         return mu_theta, var
 
     def p_sample(self, xt: torch.Tensor, t: torch.Tensor, set_seed=False):
         if set_seed:
             torch.manual_seed(42)
+            
         mu_theta, var = self.p_xt_prev_xt(xt, t)
         noise = torch.randn_like(xt)
         nonzero_mask = (t != 0).float().view(-1, 1, 1, 1)
