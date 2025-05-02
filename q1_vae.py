@@ -18,7 +18,6 @@ def log_likelihood_bernoulli(mu, target):
     :param target: (FloatTensor) - shape: (batch_size x input_size) - Target samples (binary values).
     :return: (FloatTensor) - shape: (batch_size,) - log-likelihood of target samples on the Bernoulli random variables.
     """
-    # init
     batch_size = mu.size(0)
     mu = mu.view(batch_size, -1)
     target = target.view(batch_size, -1)
@@ -40,7 +39,6 @@ def log_likelihood_normal(mu, logvar, z):
     :param z: (FloatTensor) - shape: (batch_size x input_size) - Target samples.
     :return: (FloatTensor) - shape: (batch_size,) - log probability of the sames on the given Normal distributions.
     """
-    # init
     batch_size = mu.size(0)
     mu = mu.view(batch_size, -1)
     logvar = logvar.view(batch_size, -1)
@@ -61,10 +59,6 @@ def log_mean_exp(y):
     :param y: (FloatTensor) - shape: (batch_size x sample_size) - Values to be evaluated for log_mean_exp. For example log proababilies
     :return: (FloatTensor) - shape: (batch_size,) - Output for log_mean_exp.
     """
-    # init
-    batch_size = y.size(0)
-    sample_size = y.size(1)
-
     #TODO: compute log_mean_exp
     a, _ = torch.max(y, dim=1, keepdim=True)    
     lme = torch.log(torch.mean(torch.exp(y - a), dim=1)) + a.squeeze(1)
@@ -129,15 +123,12 @@ def kl_gaussian_gaussian_mc(mu_q, logvar_q, mu_p, logvar_p, num_samples=1):
 
     log_2pi = torch.log(torch.tensor(2 * math.pi, device=mu_q.device))
 
-    # Compute log q(z)
     log_qz = -0.5 * (logvar_q + log_2pi + ((z - mu_q) ** 2) / torch.exp(logvar_q))
     log_qz = log_qz.sum(dim=2)
 
-    # Compute log p(z)
     log_pz = -0.5 * (logvar_p + log_2pi + ((z - mu_p) ** 2) / torch.exp(logvar_p))
     log_pz = log_pz.sum(dim=2)
 
-    # Monte Carlo estimate of KL divergence
     kl_mc = (log_qz - log_pz).mean(dim=1)
 
     return kl_mc
